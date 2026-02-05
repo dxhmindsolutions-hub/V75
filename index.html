@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="format-detection" content="telephone=no">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+
+<style>
+  @font-face {
+    font-family: 'Inter';
+    src: url('fonts/Inter-Regular.woff2') format('woff2');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('fonts/Inter-Medium.woff2') format('woff2');
+    font-weight: 500;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('fonts/Inter-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:#f2f2f7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== HEADER ===== */
+  header{
+    background:#fff;
+    padding:12px;
+    border-bottom:1px solid #ddd;
+  }
+  .top{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .menu{
+    font-size:28px;
+    cursor:pointer;
+    position: relative;
+    top: -5px;
+  }
+  .addMain{
+    margin-left:auto;
+    font-size:16px;
+    cursor:pointer;
+    font-weight:600;
+  }
+  h1{
+    margin:0 0 10px 0;
+    font-size:20px;
+  }
+  .search input{
+    width:100%;
+    padding:10px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    background:#e5e5ea;
+  }
+
+  /* Botones de exportar/importar pequeños */
+  .smallBtn{
+    padding:10px 10px;
+    font-size:14px;
+    border-radius:8px;
+    background:#e0e0e0;
+    color:#000;
+    font-weight:500;
+    display:inline-block;
+  }
+  
+  .smallBtn.green{
+  background:#43a047;
+  color:#fff;
+}
+
+  /* Botón añadir artículo destacado */
+  .highlightBtn{
+    padding:10px 16px;
+    font-size:16px;
+    border-radius:12px;
+    background:#43a047;
+    color:#fff;
+    font-weight:600;
+  }
+
+  /* ===== DRAWER ===== */
+  #drawer {
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+    width: 260px;
+    background: #fff;
+    transform: translateX(-100%);
+    transition: .3s;
+    padding: 16px;
+    z-index: 20;
+    overflow-y: auto; 
+
+  }
+  #drawer.open { transform: translateX(0); }
+  #drawer button {
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 10px;
+    border: 1px solid #000;
+    border-radius: 12px;
+    background: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: left;
+  }
+  #drawer button.active { background: #000; color: #fff; }
+  #drawer button:hover { background: #333; color: #fff; }
+
+  /* ===== LISTA ===== */
+  main{
+    padding:12px;
+    padding-bottom:260px;
+  }
+  .item{
+    background:#fff;
+    border-radius:12px;
+    padding:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .item small{
+    display:block;
+    color:#666;
+    font-size:12px;
+  }
+  .item > div{ display:flex }
+  .item button{
+    width:36px;
+    height:36px;
+    border:none;
+    border-radius:10px;
+    font-size:18px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .add{ background:#000; color:#fff }
+  .del{ background:#ff3b30; color:#fff }
+
+  /* ===== BOTÓN VER TICKET ===== */
+  #viewTicketBtn{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    padding:12px 16px;
+    border-radius:12px;
+    background:#000;
+    color:#fff;
+    font-weight:600;
+    border:none;
+    cursor:pointer;
+    display:none;
+    z-index:50;
+  }
+
+  /* ===== MODALES ===== */
+  .modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.4);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+  }
+ .modal .box{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+
+  width:95%;
+  max-width:520px;
+
+  max-height:90vh;
+  overflow-y:auto;
+}
+/* botones siempre visibles abajo del modal */
+.modal .box > div:last-child{
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-top: 12px;
+}
+
+  .modal input,
+  .modal select,
+  .modal textarea{
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+  }
+  .modal h3{
+    font-size: 16px;
+    margin:0 0 12px;
+    text-align:center;
+  }
+  .modal p{
+    font-size: 16px;
+    margin:14px 0 6px;
+    font-weight:600;
+  }
+  .btns.qty{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+  }
+  .btns.unit{
+    display:flex;
+    gap:8px;
+  }
+  .btns button{
+    font-size: 16px;
+    padding:10px 0;
+    border:1px solid #000;
+    border-radius:12px;
+    background:#fff;
+    font-weight:600;
+  }
+  .btns button.active{ background:#000; color:#fff; }
+  .modal .box > div:last-child{
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-top: 12px;
+
+  display:flex;
+  gap:8px;
+  margin-top:16px;
+}
+
+  .modal #add,
+  .modal #save,
+  .modal #send{ background:#43a047; color:#fff }
+  .modal #cancel{ background:#ff3b30; color:#fff }
+  .modal button{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    font-weight:600;
+  }
+  
+/* ===== CHIPS ===== */
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.chip{
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid #bbb;
+  background:#f6f6f6;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  transition: all .15s ease;
+}
+
+.chip.active{
+  background:#000;
+  color:#fff;
+  border-color:#000;
+}
+
+
+
+  /* ===== TICKET ===== */
+  #ticketModal ul{
+    list-style:none;
+    padding:0;
+    margin:8px 0;
+    max-height:40vh;
+    overflow-y:auto;
+  }
+  #ticketModal li{
+    display:grid;
+    grid-template-columns:1fr auto 28px;
+    align-items:center;
+    gap:8px;
+    padding:8px 6px;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+  }
+  #ticketModal li span{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  .ticket-actions{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-top:8px;
+  }
+.ticket-actions button{
+  padding:8px 14px;
+  font-size:13px;
+  font-weight:500;
+  border-radius:999px;
+  border:1px solid #bbb;
+  background:#f6f6f6;
+  color:#000;
+  cursor:pointer;
+}
+
+  
+  /* ===== NORMALIZACIÓN iOS ===== */
+body {
+  color: #000;
+}
+
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button,
+span,
+div,
+li,
+small,
+strong {
+  color: inherit;
+  text-decoration: none;
+}
+
+.search{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.search button{
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+  #providerList{
+  max-height:160px;
+  overflow-y:auto;
+}
+
+
+</style>
+</head>
+
+<body>
+
+  <!-- DRAWER -->
+  <div id="drawer"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="top">
+      <div class="menu" onclick="toggleDrawer()">≡</div>
+      <h1>Despensa</h1>
+      <div class="addMain" id="editBtn" onclick="toggleEditMode()">✏️ Editar</div>
+
+      <!-- BOTONES MODO EDICIÓN -->
+      <div id="editButtons" style="display:none; gap:8px; align-items:center; margin-left:auto;">
+        <button onclick="exportData()" class="smallBtn">💾 Exportar</button>
+        <button onclick="document.getElementById('importFile').click()" class="smallBtn">📂 Importar</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+      <button id="addItemBtn" class="smallBtn green" onclick="showAddItem()">➕ Añadir artículo</button>
+      </div>
+    </div>
+
+    <div class="search">
+      <input id="search" placeholder="Buscar..." oninput="render()">
+      <button onclick="openProviderFilter()">⚙️ Filtro</button>
+    </div>
+  </header>
+
+  <!-- LISTA PRINCIPAL -->
+  <main id="list"></main>
+
+  <!-- BOTÓN VER TICKET -->
+  <button id="viewTicketBtn" onclick="openTicketModal()">🧾 Ver Ticket [00]</button>
+
+  <!-- MODAL TICKET -->
+  <div id="ticketModal" class="modal">
+    <div class="box">
+      <strong style="display:block;margin-bottom:12px;">🧾 Ticket</strong>
+
+      <div style="display:grid; grid-template-columns:1fr auto 28px; font-size:13px; font-weight:600; color:#666; padding:6px; border-bottom:1px solid #ddd;">
+        <span>Artículo</span>
+        <span>Unid.</span>
+        <span></span>
+      </div>
+
+      <ul id="ticketList"></ul>
+
+      <div class="ticket-actions">
+        <button onclick="printTicket()">🖨️ Imprimir</button>
+        <button onclick="sendWhatsApp()">📲 WhatsApp</button>
+        <button onclick="askResetTicket()">🔄 Nuevo</button>
+        <button onclick="closeTicketModal()">❌ Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR -->
+  <div id="confirmModal" class="modal">
+    <div class="box">
+      <p id="confirmText"></p>
+      <div>
+        <button id="add" onclick="confirmDelete()">Aceptar</button>
+        <button id="cancel" onclick="closeConfirm()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+
+  <!-- MODAL PARA IMPRESIÓN -->
+<div id="print-ticket" style="display:none; font-family:monospace;">
+  <h2 style="text-align:center">PEDIDO</h2>
+  <p style="text-align:center" id="ticket-fecha"></p>
+  <hr>
+  <div id="ticket-items"></div>
+  <hr>
+  <p style="text-align:center">Gracias por su pedido</p>
+</div>
+
+<style>
+@media print{
+  body * { display:none !important; }
+  #print-ticket, #print-ticket * { display:block !important; }
+  #print-ticket { width:80mm; font-size:18px; margin:0 auto; }
+  #print-ticket div { display:flex; justify-content:space-between; margin:4px 0; }
+  #print-ticket hr { border:none; border-top:1px solid #000; margin:6px 0; }
+  #print-ticket h2 { margin:6px 0; }
+}
+
+</style>
+
+</body>
+</html>
