@@ -23,7 +23,8 @@ function toggleEditMode(){
 
 /* ===== CATEGORÍAS ===== */
 const categories = [
-  "Aguas y refrescos",
+  "Aguas",
+  "Refrescos",
   "Cervezas",
   "Bodega",
   "Licores",
@@ -42,7 +43,8 @@ const categories = [
 
 /* ===== IVA POR CATEGORÍA ===== */
 const categoryIVA = {
-  "Aguas y refrescos": 10,
+  "Aguas": 10,
+  "Refrescos": 21,
   "Cervezas": 21,
   "Bodega": 21,
   "Licores": 21,
