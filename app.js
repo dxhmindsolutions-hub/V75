@@ -175,7 +175,8 @@ ${editMode && (i.suppliers?.length || i.note) ? `
     ${i.suppliers?.length > 1
       ? ` · 🏭 ${i.suppliers.length} proveedores`
       : ""}
-    ${i.note ? ` · 📝 ${i.note}` : ""}
+   ${i.note ? ` · 📝 ${i.note}` : ""}
+ · IVA ${i.iva ?? 21}%
   </small>
 ` : ""}
 
@@ -246,6 +247,15 @@ function editItem(index){
     <input id="imain" type="number" min="1"
       value="${item.suppliers.length ? item.mainSupplier + 1 : 1}">
 
+      <p>IVA</p>
+<select id="iiva">
+  <option value="0">0%</option>
+  <option value="4">4%</option>
+  <option value="10">10%</option>
+  <option value="21">21%</option>
+</select>
+
+
     <p>Nota interna</p>
     <textarea id="inote">${item.note}</textarea>
 
@@ -257,6 +267,7 @@ function editItem(index){
   `;
 
   document.body.appendChild(m);
+m.querySelector("#iiva").value = item.iva ?? 21;
 
   // ✅ Botón Añadir proveedor
 m.querySelector("#addProvider").onclick = () => {
@@ -336,6 +347,8 @@ if(item.mainSupplier >= item.suppliers.length){
     item.mainSupplier = Math.max(0, Math.min(main, item.suppliers.length - 1));
 
     item.note = m.querySelector("#inote").value.trim();
+    item.iva = parseInt(m.querySelector("#iiva").value, 10);
+
 
     m.remove();
     render();
