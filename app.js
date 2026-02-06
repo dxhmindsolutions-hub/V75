@@ -111,34 +111,34 @@ function render(){
 .filter(i => {
 
   const qActive = q.length > 0;
+  const providerActive = providerFilter.size > 0;
 
-// ✅ si hay búsqueda → ignoramos categoría
-if(!qActive){
-  if(i.cat !== activeCat) return false;
-}
+  // ✅ categoría solo si no hay búsqueda ni filtro proveedor
+  if(!qActive && !providerActive){
+    if(i.cat !== activeCat) return false;
+  }
 
-
-// ✅ filtro multi proveedor
-const qActive = q.length > 0;
-const providerActive = providerFilter.size > 0;
-
-// ✅ si hay búsqueda O filtro proveedor → ignoramos categoría
-if(!qActive && !providerActive){
-  if(i.cat !== activeCat) return false;
-}
+  // ✅ filtro proveedor (multi)
+  if(providerActive){
+    const mainProv = i.suppliers?.[i.mainSupplier]?.name;
+    if(!mainProv || !providerFilter.has(mainProv)) return false;
+  }
 
   // ✅ filtro texto
-  if(!q) return true;
+  if(qActive){
+    const nameMatch = i.name.toLowerCase().includes(q);
+    const provMatch =
+      i.suppliers?.[i.mainSupplier]?.name
+        ?.toLowerCase()
+        .includes(q);
 
-  const nameMatch = i.name.toLowerCase().includes(q);
-  const provMatch =
-    i.suppliers?.[i.mainSupplier]?.name
-      ?.toLowerCase()
-      .includes(q);
+    if(!nameMatch && !provMatch) return false;
+  }
 
-  return nameMatch || provMatch;
+  return true;
 
 })
+
 
     .map(i => {
       const realIndex = items.indexOf(i);
