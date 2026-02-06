@@ -574,10 +574,11 @@ function openProviderFilter(){
         `).join("")}
       </div>
 
-      <div style="margin-top:16px; display:flex; gap:8px">
-        <button id="clear">Limpiar</button>
-        <button id="close">Aplicar</button>
-      </div>
+      <div class="ticket-actions">
+  <button id="clear">🗑 Limpiar</button>
+  <button id="close">✅ Aplicar</button>
+</div>
+
     </div>
   `;
 
