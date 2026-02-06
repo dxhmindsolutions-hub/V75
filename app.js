@@ -336,23 +336,25 @@ if(item.mainSupplier >= item.suppliers.length){
   m.querySelector("#cancel").onclick = () => m.remove();
 
   // ✅ Botón Guardar
-  m.querySelector("#save").onclick = () => {
-    const name = m.querySelector("#iname").value.trim();
-    if(!name) return alert("Nombre del artículo requerido");
+  m.querySelector("#save").onclick = ()=>{
+  const name = m.querySelector("#iname").value.trim();
+  if(!name) return alert("Nombre requerido");
 
-    item.name = name;
-    item.cat  = m.querySelector("#icat").value;
+  const cat = m.querySelector("#icat").value;
 
-    const main = parseInt(m.querySelector("#imain").value, 10) - 1;
-    item.mainSupplier = Math.max(0, Math.min(main, item.suppliers.length - 1));
+  items.push({
+    name,
+    cat,
+    suppliers: [],
+    mainSupplier: 0,
+    note: "",
+    iva: categoryIVA[cat] ?? 21
+  });
 
-    item.note = m.querySelector("#inote").value.trim();
-    item.iva = parseInt(m.querySelector("#iiva").value, 10);
+  m.remove();
+  render();
+};
 
-
-    m.remove();
-    render();
-  };
 
   // Asignar eventos de eliminar proveedores existentes
  m.querySelectorAll(".remove-provider").forEach(btn=>{
@@ -373,30 +375,42 @@ if(item.mainSupplier >= item.suppliers.length){
 /* ===== NUEVO ARTÍCULO ===== */
 function showAddItem(){
   const m = document.createElement("div");
-  m.className="modal"; m.style.display="flex";
+  m.className="modal";
+  m.style.display="flex";
+
   m.innerHTML = `
     <div class="box">
       <h3>Nuevo artículo</h3>
       <input id="iname">
-      <select id="icat">${categories.map(c=>`<option>${c}</option>`).join("")}</select>
+      <select id="icat">
+        ${categories.map(c=>`<option>${c}</option>`).join("")}
+      </select>
       <div>
         <button id="save">Guardar</button>
         <button id="cancel">Cancelar</button>
       </div>
     </div>`;
-  document.body.appendChild(m);
-  m.querySelector("#cancel").onclick = ()=>m.remove();
-  m.querySelector("#save").onclick = ()=>{
-const cat = m.querySelector("#icat").value;
 
-items.push({
-  name: m.querySelector("#iname").value.trim(),
-  cat:  cat,
-  suppliers: [],
-  mainSupplier: 0,
-  note: "",
-  iva: categoryIVA[cat] ?? 21
-});
+  document.body.appendChild(m);
+
+  m.querySelector("#cancel").onclick = ()=> m.remove();
+
+  m.querySelector("#save").onclick = ()=>{
+    const cat = m.querySelector("#icat").value;
+
+    items.push({
+      name: m.querySelector("#iname").value.trim(),
+      cat:  cat,
+      suppliers: [],
+      mainSupplier: 0,
+      note: "",
+      iva: categoryIVA[cat] ?? 21
+    });
+
+    m.remove();
+    render();
+  };
+}
 
 
 /* ===== CANTIDAD ===== */
@@ -599,11 +613,12 @@ function openProviderFilter(){
 /* ===== INICIAL ===== */
 if(items.length===0){
   items = [
-    {name:"Agua 50cl",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:""},
-    {name:"Agua 1,25 litros",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:""},
-    {name:"Coca Cola",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:""}
+    {name:"Agua 50cl",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:"", iva:10},
+    {name:"Agua 1,25 litros",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:"", iva:10},
+    {name:"Coca Cola",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:"", iva:10}
   ];
 }
+
 
 // Guardar en localStorage si era vacío
 localStorage.items = JSON.stringify(items);
@@ -655,6 +670,7 @@ function importData(event){
           i.suppliers ??= [];
           i.mainSupplier ??= 0;
           i.note ??= "";
+          i.iva ??= categoryIVA[i.cat] ?? 21;
         });
 
         localStorage.providers = JSON.stringify(providers);
