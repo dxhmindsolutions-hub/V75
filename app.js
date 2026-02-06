@@ -40,12 +40,32 @@ const categories = [
   "Otros"
 ];
 
+/* ===== IVA POR CATEGORÍA ===== */
+const categoryIVA = {
+  "Aguas y refrescos": 10,
+  "Cervezas": 21,
+  "Bodega": 21,
+  "Licores": 21,
+  "Café y té": 10,
+  "Frutas y verduras": 4,
+  "Lácteos y huevos": 4,
+  "Carne": 10,
+  "Marisco": 10,
+  "Limpieza": 21,
+  "Congelados": 10,
+  "Asiático": 10,
+  "Conservas": 10,
+  "Aceite, especias y salsas": 10,
+  "Otros": 21
+};
+
 let activeCat = categories[0];
 let items = JSON.parse(localStorage.items || "[]");
 items.forEach(i => {
   i.suppliers ??= [];
   i.mainSupplier ??= 0;
   i.note ??= "";
+  i.iva ??= categoryIVA[i.cat] ?? 21;
 });
 
 let cart  = JSON.parse(localStorage.cart  || "[]");
@@ -354,16 +374,17 @@ function showAddItem(){
   document.body.appendChild(m);
   m.querySelector("#cancel").onclick = ()=>m.remove();
   m.querySelector("#save").onclick = ()=>{
+const cat = m.querySelector("#icat").value;
+
 items.push({
   name: m.querySelector("#iname").value.trim(),
-  cat:  m.querySelector("#icat").value,
+  cat:  cat,
   suppliers: [],
   mainSupplier: 0,
-  note: ""
+  note: "",
+  iva: categoryIVA[cat] ?? 21
 });
-    m.remove(); render();
-  };
-}
+
 
 /* ===== CANTIDAD ===== */
 function showQtyModal(name){
