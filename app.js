@@ -338,24 +338,23 @@ if(item.mainSupplier >= item.suppliers.length){
   m.querySelector("#cancel").onclick = () => m.remove();
 
   // ✅ Botón Guardar
-  m.querySelector("#save").onclick = ()=>{
+m.querySelector("#save").onclick = () => {
   const name = m.querySelector("#iname").value.trim();
   if(!name) return alert("Nombre requerido");
 
-  const cat = m.querySelector("#icat").value;
+  // Actualizar artículo existente
+  item.name = name;
+  item.cat = m.querySelector("#icat").value;
+  item.iva = parseInt(m.querySelector("#iiva").value) || categoryIVA[item.cat] ?? 21;
+  item.note = m.querySelector("#inote").value;
 
-  items.push({
-    name,
-    cat,
-    suppliers: [],
-    mainSupplier: 0,
-    note: "",
-    iva: categoryIVA[cat] ?? 21
-  });
+  const mainProv = parseInt(m.querySelector("#imain").value);
+  item.mainSupplier = Math.max(0, Math.min(mainProv - 1, item.suppliers.length - 1));
 
   m.remove();
   render();
 };
+
 
 
   // Asignar eventos de eliminar proveedores existentes
