@@ -320,19 +320,44 @@ item.mainSupplier =
   `).join("");
 
   ul.querySelectorAll(".remove-provider").forEach(btn=>{
-    btn.onclick = () => {
-const idx = Number(btn.dataset.index);
-item.suppliers.splice(idx,1);
+ btn.onclick = () => {
+  const idx = Number(btn.dataset.index);
+  item.suppliers.splice(idx,1);
+  if(item.mainSupplier >= item.suppliers.length){
+    item.mainSupplier = 0;
+  }
 
-if(item.mainSupplier >= item.suppliers.length){
-  item.mainSupplier = 0;
-}
+  // refrescar lista de proveedores solo en el modal
+ const ul = m.querySelector("#providerList");
+ul.innerHTML = item.suppliers.map((s,i)=>`
+  <li>
+    ${s.name} — ${s.cost.toFixed(2)} €
+    <button class="remove-provider" data-index="${i}">✕</button>
+  </li>
+`).join("");
 
-      editItem(index);
-    };
-  });
+ul.querySelectorAll(".remove-provider").forEach(btn=>{
+  btn.onclick = () => {
+    const idx = Number(btn.dataset.index);
+    item.suppliers.splice(idx,1);
+    if(item.mainSupplier >= item.suppliers.length){
+      item.mainSupplier = 0;
+    }
 
-};
+    // refrescar lista otra vez
+    btn.closest("ul").innerHTML = item.suppliers.map((s,i)=>`
+      <li>
+        ${s.name} — ${s.cost.toFixed(2)} €
+        <button class="remove-provider" data-index="${i}">✕</button>
+      </li>
+    `).join("");
+
+    btn.closest("ul").querySelectorAll(".remove-provider").forEach(b=>{
+      b.onclick = arguments.callee;
+    });
+  };
+});
+
 
   // ✅ Botón Cancelar
   m.querySelector("#cancel").onclick = () => m.remove();
@@ -357,21 +382,31 @@ m.querySelector("#save").onclick = () => {
 
 
 
-  // Asignar eventos de eliminar proveedores existentes
- m.querySelectorAll(".remove-provider").forEach(btn=>{
+// Asignar eventos de eliminar proveedores existentes
+m.querySelectorAll(".remove-provider").forEach(btn=>{
   btn.onclick = () => {
     const idx = Number(btn.dataset.index);
     item.suppliers.splice(idx,1);
-
     if(item.mainSupplier >= item.suppliers.length){
       item.mainSupplier = 0;
     }
 
-    editItem(index);
+    // refrescar lista de proveedores solo en el modal
+    const ul = m.querySelector("#providerList");
+    ul.innerHTML = item.suppliers.map((s,i)=>`
+      <li>
+        ${s.name} — ${s.cost.toFixed(2)} €
+        <button class="remove-provider" data-index="${i}">✕</button>
+      </li>
+    `).join("");
+
+    // volver a asignar eventos a los nuevos botones
+    ul.querySelectorAll(".remove-provider").forEach(b=>{
+      b.onclick = arguments.callee;
+    });
   };
 });
 
-}
 
 /* ===== NUEVO ARTÍCULO ===== */
 function showAddItem(){
