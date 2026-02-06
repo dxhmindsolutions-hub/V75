@@ -119,9 +119,12 @@ if(!qActive){
 
 
 // ✅ filtro multi proveedor
-if(providerFilter.size > 0){
-  const prov = i.suppliers?.[i.mainSupplier]?.name;
-  if(!providerFilter.has(prov)) return false;
+const qActive = q.length > 0;
+const providerActive = providerFilter.size > 0;
+
+// ✅ si hay búsqueda O filtro proveedor → ignoramos categoría
+if(!qActive && !providerActive){
+  if(i.cat !== activeCat) return false;
 }
 
   // ✅ filtro texto
