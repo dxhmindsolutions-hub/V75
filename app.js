@@ -592,11 +592,7 @@ search.addEventListener("input", render);
 
 /* ===== EXPORTAR / IMPORTAR ===== */
 function exportData(){
-  const data = {
-    items,
-    cart,
-    providers
-  };
+  const data = { items, cart, providers };
 
   const blob = new Blob(
     [JSON.stringify(data, null, 2)],
@@ -621,7 +617,6 @@ function importData(event){
       const data = JSON.parse(e.target.result);
 
       if(data.items && data.cart){
-
         providers = data.providers || providers;
         items = data.items;
         cart  = data.cart;
@@ -640,7 +635,6 @@ function importData(event){
 
         render();
         alert("Copia restaurada correctamente ✅");
-
       } else {
         alert("Archivo inválido ⚠️");
       }
@@ -658,11 +652,27 @@ function removeProvider(itemIndex, supplierIndex){
   render();
 }
 
-/* ===== RESTAURAR VERSIONES ===== */
+/* ===== VERSIONES ===== */
+
+// Guardar una versión manual
+function saveBackup(){
+  const backups = JSON.parse(localStorage.backups || "[]");
+  const timestamp = new Date().toISOString();
+  backups.push({
+    date: timestamp,
+    items: JSON.parse(JSON.stringify(items)),
+    cart:  JSON.parse(JSON.stringify(cart)),
+    providers: JSON.parse(JSON.stringify(providers))
+  });
+  localStorage.backups = JSON.stringify(backups);
+  alert("Versión guardada ✅");
+}
+
+// Mostrar lista de versiones y restaurar
 function showBackups(){
   const backups = JSON.parse(localStorage.backups || "[]");
-  if(!backups.length){
-    alert("No hay copias guardadas");
+  if(backups.length === 0){
+    alert("No hay versiones guardadas");
     return;
   }
 
@@ -672,29 +682,44 @@ function showBackups(){
 
   m.innerHTML = `
     <div class="box">
-      <h3>Restaurar copia</h3>
-      ${backups.map((b,i)=>`
-        <button class="restore" data-i="${i}" style="margin-bottom:8px">
-          ${new Date(b.date).toLocaleString()}
-        </button>
-      `).join("")}
-      <div>
-        <button id="cancel">Cerrar</button>
+      <h3>Versiones guardadas</h3>
+      <div class="chips">
+        ${backups.map((b,i)=>`
+          <button class="chip restore" data-i="${i}">
+            ${new Date(b.date).toLocaleString()}
+          </button>
+        `).join("")}
+      </div>
+      <div class="ticket-actions" style="margin-top:12px">
+        <button id="saveNew">💾 Guardar versión</button>
+        <button id="close">❌ Cerrar</button>
       </div>
     </div>
   `;
 
   document.body.appendChild(m);
 
-  m.querySelector("#cancel").onclick = ()=> m.remove();
-
+  // Restaurar versión
   m.querySelectorAll(".restore").forEach(btn=>{
     btn.onclick = ()=>{
       const b = backups[btn.dataset.i];
-      localStorage.items = JSON.stringify(b.items);
-      localStorage.cart = JSON.stringify(b.cart);
-      localStorage.providers = JSON.stringify(b.providers);
-      location.reload();
+      items = b.items;
+      cart  = b.cart;
+      providers = b.providers;
+      localStorage.items = JSON.stringify(items);
+      localStorage.cart  = JSON.stringify(cart);
+      localStorage.providers = JSON.stringify(providers);
+      render();
+      m.remove();
+      alert("Versión restaurada ✅");
     };
   });
+
+  // Guardar nueva versión
+  m.querySelector("#saveNew").onclick = ()=>{
+    saveBackup();
+    m.remove();
+  };
+
+  m.querySelector("#close").onclick = ()=> m.remove();
 }
