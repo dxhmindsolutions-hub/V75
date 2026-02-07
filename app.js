@@ -209,6 +209,7 @@ function editItem(index){
   const m = document.createElement("div");
   m.className = "modal";
   m.style.display = "flex";
+
   m.innerHTML = `
   <div class="box">
     <h3>Editar artículo</h3>
@@ -221,42 +222,32 @@ function editItem(index){
       ${categories.map(c => `<option ${c===item.cat?'selected':''}>${c}</option>`).join("")}
     </select>
 
-<p>Añadir proveedor</p>
+    <p>Añadir proveedor</p>
 
-<select id="providerSelect">
-  <option value="">-- seleccionar --</option>
-  ${providers.map(p => `<option>${p}</option>`).join("")}
-</select>
+    <select id="providerSelect">
+      <option value="">-- seleccionar --</option>
+      ${providers.map(p => `<option>${p}</option>`).join("")}
+    </select>
 
-<input id="providerNew" placeholder="o escribir proveedor nuevo">
+    <input id="providerNew" placeholder="o escribir proveedor nuevo">
+    <input id="providerCost" type="number" step="0.01" placeholder="Precio">
 
-<input id="providerCost" type="number" step="0.01" placeholder="Precio">
-
-<button id="addProvider">➕ Añadir proveedor</button>
-
+    <button id="addProvider">➕ Añadir proveedor</button>
 
     <p>Proveedores del artículo</p>
-    <ul id="providerList">
-      ${item.suppliers.map((s,i)=>`
-        <li>
-          ${s.name} — ${s.cost.toFixed(2)} €
-          <button class="remove-provider" data-index="${i}">✕</button>
-        </li>
-      `).join("")}
-    </ul>
+    <ul id="providerList"></ul>
 
     <p>Proveedor principal (nº)</p>
     <input id="imain" type="number" min="1"
       value="${item.suppliers.length ? item.mainSupplier + 1 : 1}">
 
-      <p>IVA</p>
-<select id="iiva">
-  <option value="0">0%</option>
-  <option value="4">4%</option>
-  <option value="10">10%</option>
-  <option value="21">21%</option>
-</select>
-
+    <p>IVA</p>
+    <select id="iiva">
+      <option value="0">0%</option>
+      <option value="4">4%</option>
+      <option value="10">10%</option>
+      <option value="21">21%</option>
+    </select>
 
     <p>Nota interna</p>
     <textarea id="inote">${item.note}</textarea>
@@ -269,130 +260,12 @@ function editItem(index){
   `;
 
   document.body.appendChild(m);
-m.querySelector("#iiva").value = item.iva ?? 21;
 
-  // ✅ Botón Añadir proveedor
-m.querySelector("#addProvider").onclick = () => {
+  m.querySelector("#iiva").value = item.iva ?? 21;
 
-  const selectName = m.querySelector("#providerSelect").value.trim();
-  const newName    = m.querySelector("#providerNew").value.trim();
-
-  const name = newName || selectName;
-
-  const cost = parseFloat(m.querySelector("#providerCost").value);
-
-  if(!name) return alert("Selecciona o escribe proveedor");
-  if(isNaN(cost)) return alert("Introduce precio válido");
-
-// ❗ evitar duplicados
-if(item.suppliers.some(s => s.name === name)){
-  alert("Proveedor ya añadido");
-  return;
-}
-
-// añadir proveedor
-item.suppliers.push({ name, cost });
-
-// proveedor principal = más barato
-item.mainSupplier =
-  item.suppliers
-    .map(s => s.cost)
-    .indexOf(Math.min(...item.suppliers.map(s => s.cost)));
-
-  
-  // añadir a lista global si es nuevo
-  if(!providers.includes(name)){
-    providers.push(name);
-  }
-
-  // limpiar campos
-  m.querySelector("#providerSelect").value = "";
-  m.querySelector("#providerNew").value = "";
-  m.querySelector("#providerCost").value = "";
-
-  // refrescar lista visual
   const ul = m.querySelector("#providerList");
-  ul.innerHTML = item.suppliers.map((s,i)=>`
-    <li>
-      ${s.name} — ${s.cost.toFixed(2)} €
-      <button class="remove-provider" data-index="${i}">✕</button>
-    </li>
-  `).join("");
 
-  ul.querySelectorAll(".remove-provider").forEach(btn=>{
- btn.onclick = () => {
-  const idx = Number(btn.dataset.index);
-  item.suppliers.splice(idx,1);
-  if(item.mainSupplier >= item.suppliers.length){
-    item.mainSupplier = 0;
-  }
-
-  // refrescar lista de proveedores solo en el modal
- const ul = m.querySelector("#providerList");
-ul.innerHTML = item.suppliers.map((s,i)=>`
-  <li>
-    ${s.name} — ${s.cost.toFixed(2)} €
-    <button class="remove-provider" data-index="${i}">✕</button>
-  </li>
-`).join("");
-
-ul.querySelectorAll(".remove-provider").forEach(btn=>{
-  btn.onclick = () => {
-    const idx = Number(btn.dataset.index);
-    item.suppliers.splice(idx,1);
-    if(item.mainSupplier >= item.suppliers.length){
-      item.mainSupplier = 0;
-    }
-
-    // refrescar lista otra vez
-    btn.closest("ul").innerHTML = item.suppliers.map((s,i)=>`
-      <li>
-        ${s.name} — ${s.cost.toFixed(2)} €
-        <button class="remove-provider" data-index="${i}">✕</button>
-      </li>
-    `).join("");
-
-    btn.closest("ul").querySelectorAll(".remove-provider").forEach(b=>{
-      b.onclick = arguments.callee;
-    });
-  };
-});
-
-
-  // ✅ Botón Cancelar
-  m.querySelector("#cancel").onclick = () => m.remove();
-
-  // ✅ Botón Guardar
-m.querySelector("#save").onclick = () => {
-  const name = m.querySelector("#iname").value.trim();
-  if(!name) return alert("Nombre requerido");
-
-  // Actualizar artículo existente
-  item.name = name;
-  item.cat = m.querySelector("#icat").value;
-  item.iva = parseInt(m.querySelector("#iiva").value) || categoryIVA[item.cat] ?? 21;
-  item.note = m.querySelector("#inote").value;
-
-  const mainProv = parseInt(m.querySelector("#imain").value);
-  item.mainSupplier = Math.max(0, Math.min(mainProv - 1, item.suppliers.length - 1));
-
-  m.remove();
-  render();
-};
-
-
-
-// Asignar eventos de eliminar proveedores existentes
-m.querySelectorAll(".remove-provider").forEach(btn=>{
-  btn.onclick = () => {
-    const idx = Number(btn.dataset.index);
-    item.suppliers.splice(idx,1);
-    if(item.mainSupplier >= item.suppliers.length){
-      item.mainSupplier = 0;
-    }
-
-    // refrescar lista de proveedores solo en el modal
-    const ul = m.querySelector("#providerList");
+  function refreshProviderList(){
     ul.innerHTML = item.suppliers.map((s,i)=>`
       <li>
         ${s.name} — ${s.cost.toFixed(2)} €
@@ -400,12 +273,68 @@ m.querySelectorAll(".remove-provider").forEach(btn=>{
       </li>
     `).join("");
 
-    // volver a asignar eventos a los nuevos botones
-    ul.querySelectorAll(".remove-provider").forEach(b=>{
-      b.onclick = arguments.callee;
+    ul.querySelectorAll(".remove-provider").forEach(btn=>{
+      btn.onclick = () => {
+        const idx = Number(btn.dataset.index);
+        item.suppliers.splice(idx,1);
+        if(item.mainSupplier >= item.suppliers.length){
+          item.mainSupplier = 0;
+        }
+        refreshProviderList();
+      };
     });
+  }
+
+  refreshProviderList();
+
+  /* añadir proveedor */
+  m.querySelector("#addProvider").onclick = () => {
+    const selectName = m.querySelector("#providerSelect").value.trim();
+    const newName = m.querySelector("#providerNew").value.trim();
+    const name = newName || selectName;
+    const cost = parseFloat(m.querySelector("#providerCost").value);
+
+    if(!name) return alert("Selecciona o escribe proveedor");
+    if(isNaN(cost)) return alert("Introduce precio válido");
+    if(item.suppliers.some(s => s.name === name)){
+      alert("Proveedor ya añadido");
+      return;
+    }
+
+    item.suppliers.push({ name, cost });
+
+    item.mainSupplier =
+      item.suppliers
+        .map(s => s.cost)
+        .indexOf(Math.min(...item.suppliers.map(s => s.cost)));
+
+    if(!providers.includes(name)) providers.push(name);
+
+    m.querySelector("#providerSelect").value = "";
+    m.querySelector("#providerNew").value = "";
+    m.querySelector("#providerCost").value = "";
+
+    refreshProviderList();
   };
-});
+
+  m.querySelector("#cancel").onclick = () => m.remove();
+
+  m.querySelector("#save").onclick = () => {
+    const name = m.querySelector("#iname").value.trim();
+    if(!name) return alert("Nombre requerido");
+
+    item.name = name;
+    item.cat = m.querySelector("#icat").value;
+    item.iva = parseInt(m.querySelector("#iiva").value);
+    item.note = m.querySelector("#inote").value;
+
+    const main = parseInt(m.querySelector("#imain").value);
+    item.mainSupplier = Math.max(0, Math.min(main-1, item.suppliers.length-1));
+
+    m.remove();
+    render();
+  };
+}
 
 
 /* ===== NUEVO ARTÍCULO ===== */
@@ -650,11 +579,12 @@ function openProviderFilter(){
 /* ===== INICIAL ===== */
 if(items.length===0){
   items = [
-    {name:"Agua 50cl",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:"", iva:10},
-    {name:"Agua 1,25 litros",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:"", iva:10},
-    {name:"Coca Cola",cat:"Aguas y refrescos", suppliers:[], mainSupplier:0, note:"", iva:10}
+    {name:"Agua 50cl",cat:"Aguas", suppliers:[], mainSupplier:0, note:"", iva:10},
+    {name:"Agua 1,25 litros",cat:"Aguas", suppliers:[], mainSupplier:0, note:"", iva:10},
+    {name:"Coca Cola",cat:"Refrescos", suppliers:[], mainSupplier:0, note:"", iva:21}
   ];
 }
+
 
 
 // Guardar en localStorage si era vacío
