@@ -473,7 +473,32 @@ strong {
   #print-ticket hr { border:none; border-top:1px solid #000; margin:6px 0; }
   #print-ticket h2 { margin:6px 0; }
 }
+/* BOTONERA MODO EDICIÓN */
+#editButtons {
+  display: flex;
+  flex-wrap: wrap;         /* permite varias filas si no caben */
+  gap: 6px;                /* separación entre botones */
+  justify-content: flex-start;
+  width: 100%;
+  padding: 4px;
+  box-sizing: border-box;
+}
 
+#editButtons .smallBtn {
+  flex: 1 1 auto;          /* se ajusta al espacio disponible */
+  min-width: 80px;         /* tamaño mínimo cómodo para tocar */
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+#editButtons .smallBtn.green {
+  background-color: #4caf50;
+  color: white;
+}
+
+  
 </style>
 
 </body>
