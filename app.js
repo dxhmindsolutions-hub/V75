@@ -667,4 +667,5 @@ function importData(event){
 function removeProvider(itemIndex, supplierIndex){
   items[itemIndex].suppliers.splice(supplierIndex,1);
   render();
+};
 }
