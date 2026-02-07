@@ -340,7 +340,7 @@ function editItem(index){
   m.remove();
   render();
 };
-
+}
 
 /* ===== NUEVO ARTÍCULO ===== */
 function showAddItem(){
