@@ -128,7 +128,7 @@ function renderDrawer(){
 function render(){
   sortItems();
   renderDrawer();
-  const q = search.value.toLowerCase();
+  const q = (search?.value || "").toLowerCase();
   list.innerHTML = items
 .filter(i => {
 
@@ -277,9 +277,12 @@ function editItem(index){
       btn.onclick = () => {
         const idx = Number(btn.dataset.index);
         item.suppliers.splice(idx,1);
-        if(item.mainSupplier >= item.suppliers.length){
-          item.mainSupplier = 0;
-        }
+      if(item.suppliers.length === 0){
+  item.mainSupplier = 0;
+} else if(item.mainSupplier >= item.suppliers.length){
+  item.mainSupplier = 0;
+}
+
         refreshProviderList();
       };
     });
@@ -320,21 +323,23 @@ function editItem(index){
   m.querySelector("#cancel").onclick = () => m.remove();
 
   m.querySelector("#save").onclick = () => {
-    const name = m.querySelector("#iname").value.trim();
-    if(!name) return alert("Nombre requerido");
+     const name = m.querySelector("#iname").value.trim();
+  if(!name) return alert("Nombre requerido");
 
-    item.name = name;
-    item.cat = m.querySelector("#icat").value;
-    item.iva = parseInt(m.querySelector("#iiva").value);
-    item.note = m.querySelector("#inote").value;
+  const cat = m.querySelector("#icat").value;
 
-    const main = parseInt(m.querySelector("#imain").value);
-    item.mainSupplier = Math.max(0, Math.min(main-1, item.suppliers.length-1));
+  items.push({
+    name,
+    cat,
+    suppliers: [],
+    mainSupplier: 0,
+    note: "",
+    iva: categoryIVA[cat] ?? 21
+  });
 
-    m.remove();
-    render();
-  };
-}
+  m.remove();
+  render();
+};
 
 
 /* ===== NUEVO ARTÍCULO ===== */
