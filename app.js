@@ -223,23 +223,19 @@ function editItem(index){
     </select>
 
     <p>Añadir proveedor</p>
-
     <select id="providerSelect">
       <option value="">-- seleccionar --</option>
       ${providers.map(p => `<option>${p}</option>`).join("")}
     </select>
-
     <input id="providerNew" placeholder="o escribir proveedor nuevo">
     <input id="providerCost" type="number" step="0.01" placeholder="Precio">
-
     <button id="addProvider">➕ Añadir proveedor</button>
 
     <p>Proveedores del artículo</p>
     <ul id="providerList"></ul>
 
     <p>Proveedor principal (nº)</p>
-    <input id="imain" type="number" min="1"
-      value="${item.suppliers.length ? item.mainSupplier + 1 : 1}">
+    <input id="imain" type="number" min="1" value="${item.suppliers.length ? item.mainSupplier + 1 : 1}">
 
     <p>IVA</p>
     <select id="iiva">
@@ -260,7 +256,6 @@ function editItem(index){
   `;
 
   document.body.appendChild(m);
-
   m.querySelector("#iiva").value = item.iva ?? 21;
 
   const ul = m.querySelector("#providerList");
@@ -277,12 +272,9 @@ function editItem(index){
       btn.onclick = () => {
         const idx = Number(btn.dataset.index);
         item.suppliers.splice(idx,1);
-      if(item.suppliers.length === 0){
-  item.mainSupplier = 0;
-} else if(item.mainSupplier >= item.suppliers.length){
-  item.mainSupplier = 0;
-}
-
+        if(item.mainSupplier >= item.suppliers.length){
+          item.mainSupplier = 0;
+        }
         refreshProviderList();
       };
     });
@@ -290,26 +282,22 @@ function editItem(index){
 
   refreshProviderList();
 
-  /* añadir proveedor */
+  // Añadir proveedor
   m.querySelector("#addProvider").onclick = () => {
     const selectName = m.querySelector("#providerSelect").value.trim();
-    const newName = m.querySelector("#providerNew").value.trim();
+    const newName    = m.querySelector("#providerNew").value.trim();
     const name = newName || selectName;
     const cost = parseFloat(m.querySelector("#providerCost").value);
 
     if(!name) return alert("Selecciona o escribe proveedor");
     if(isNaN(cost)) return alert("Introduce precio válido");
+
     if(item.suppliers.some(s => s.name === name)){
-      alert("Proveedor ya añadido");
-      return;
+      return alert("Proveedor ya añadido");
     }
 
     item.suppliers.push({ name, cost });
-
-    item.mainSupplier =
-      item.suppliers
-        .map(s => s.cost)
-        .indexOf(Math.min(...item.suppliers.map(s => s.cost)));
+    item.mainSupplier = item.suppliers.map(s => s.cost).indexOf(Math.min(...item.suppliers.map(s=>s.cost)));
 
     if(!providers.includes(name)) providers.push(name);
 
@@ -320,62 +308,20 @@ function editItem(index){
     refreshProviderList();
   };
 
+  // Botón Cancelar
   m.querySelector("#cancel").onclick = () => m.remove();
 
-m.querySelector("#save").onclick = () => {
-  const name = m.querySelector("#iname").value.trim();
-  if(!name) return alert("Nombre requerido");
+  // Botón Guardar
+  m.querySelector("#save").onclick = () => {
+    const name = m.querySelector("#iname").value.trim();
+    if(!name) return alert("Nombre requerido");
 
-  item.name = name;
-  item.cat  = m.querySelector("#icat").value;
-  item.iva  = parseInt(m.querySelector("#iiva").value);
-  item.note = m.querySelector("#inote").value;
-
-  const main = parseInt(m.querySelector("#imain").value);
-  if(item.suppliers.length){
-    item.mainSupplier = Math.max(0, Math.min(main-1, item.suppliers.length-1));
-  } else {
-    item.mainSupplier = 0;
-  }
-
-  m.remove();
-  render();
-};
-
-/* ===== NUEVO ARTÍCULO ===== */
-function showAddItem(){
-  const m = document.createElement("div");
-  m.className="modal";
-  m.style.display="flex";
-
-  m.innerHTML = `
-    <div class="box">
-      <h3>Nuevo artículo</h3>
-      <input id="iname">
-      <select id="icat">
-        ${categories.map(c=>`<option>${c}</option>`).join("")}
-      </select>
-      <div>
-        <button id="save">Guardar</button>
-        <button id="cancel">Cancelar</button>
-      </div>
-    </div>`;
-
-  document.body.appendChild(m);
-
-  m.querySelector("#cancel").onclick = ()=> m.remove();
-
-  m.querySelector("#save").onclick = ()=>{
-    const cat = m.querySelector("#icat").value;
-
-    items.push({
-      name: m.querySelector("#iname").value.trim(),
-      cat:  cat,
-      suppliers: [],
-      mainSupplier: 0,
-      note: "",
-      iva: categoryIVA[cat] ?? 21
-    });
+    item.name = name;
+    item.cat = m.querySelector("#icat").value;
+    item.iva = parseInt(m.querySelector("#iiva").value) || categoryIVA[item.cat] ?? 21;
+    item.note = m.querySelector("#inote").value;
+    const mainProv = parseInt(m.querySelector("#imain").value);
+    item.mainSupplier = Math.max(0, Math.min(mainProv - 1, item.suppliers.length - 1));
 
     m.remove();
     render();
