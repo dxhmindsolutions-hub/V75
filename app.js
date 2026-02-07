@@ -328,6 +328,49 @@ if(!item.note) item.note = "";
   };
 }
 
+/* ===== NUEVO ARTÍCULO ===== */
+function showAddItem(){
+  const m = document.createElement("div");
+  m.className="modal";
+  m.style.display="flex";
+
+  m.innerHTML = `
+    <div class="box">
+      <h3>Nuevo artículo</h3>
+      <input id="iname">
+      <select id="icat">
+        ${categories.map(c=>`<option>${c}</option>`).join("")}
+      </select>
+      <div>
+        <button id="save">Guardar</button>
+        <button id="cancel">Cancelar</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(m);
+
+  m.querySelector("#cancel").onclick = ()=> m.remove();
+
+  m.querySelector("#save").onclick = ()=>{
+    const name = m.querySelector("#iname").value.trim();
+    if(!name) return alert("Nombre requerido");
+
+    const cat = m.querySelector("#icat").value;
+
+    items.push({
+      name,
+      cat,
+      suppliers: [],
+      mainSupplier: 0,
+      note: "",
+      iva: categoryIVA[cat] || 21
+    });
+
+    m.remove();
+    render();
+  };
+}
+
 
 /* ===== CANTIDAD ===== */
 function showQtyModal(name){
