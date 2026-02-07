@@ -322,25 +322,25 @@ function editItem(index){
 
   m.querySelector("#cancel").onclick = () => m.remove();
 
-  m.querySelector("#save").onclick = () => {
-     const name = m.querySelector("#iname").value.trim();
+m.querySelector("#save").onclick = () => {
+  const name = m.querySelector("#iname").value.trim();
   if(!name) return alert("Nombre requerido");
 
-  const cat = m.querySelector("#icat").value;
+  item.name = name;
+  item.cat  = m.querySelector("#icat").value;
+  item.iva  = parseInt(m.querySelector("#iiva").value);
+  item.note = m.querySelector("#inote").value;
 
-  items.push({
-    name,
-    cat,
-    suppliers: [],
-    mainSupplier: 0,
-    note: "",
-    iva: categoryIVA[cat] ?? 21
-  });
+  const main = parseInt(m.querySelector("#imain").value);
+  if(item.suppliers.length){
+    item.mainSupplier = Math.max(0, Math.min(main-1, item.suppliers.length-1));
+  } else {
+    item.mainSupplier = 0;
+  }
 
   m.remove();
   render();
 };
-}
 
 /* ===== NUEVO ARTÍCULO ===== */
 function showAddItem(){
