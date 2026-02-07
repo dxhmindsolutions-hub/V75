@@ -64,10 +64,10 @@ const categoryIVA = {
 let activeCat = categories[0];
 let items = JSON.parse(localStorage.items || "[]");
 items.forEach(i => {
-i.suppliers = i.suppliers || [];
-i.mainSupplier = i.mainSupplier || 0;
-i.note = i.note || "";
-i.iva ??= categoryIVA[i.cat] ?? 21;
+if(!i.suppliers) i.suppliers = [];
+if(i.mainSupplier == null) i.mainSupplier = 0;
+if(!i.note) i.note = "";
+if(i.iva == null) i.iva = categoryIVA[i.cat] || 21;
 });
 
 let cart  = JSON.parse(localStorage.cart  || "[]");
@@ -178,7 +178,7 @@ ${editMode && (i.suppliers?.length || i.note) ? `
       ? ` · 🏭 ${i.suppliers.length} proveedores`
       : ""}
    ${i.note ? ` · 📝 ${i.note}` : ""}
- · IVA ${i.iva ?? 21}%
+· IVA ${i.iva || 21}%
   </small>
 ` : ""}
 
@@ -202,9 +202,9 @@ ${editMode && (i.suppliers?.length || i.note) ? `
 /* ===== EDITAR ARTÍCULO ===== */
 function editItem(index){
   const item = items[index];
-  item.suppliers ??= [];
-  item.mainSupplier ??= 0;
-  item.note ??= "";
+ if(!item.suppliers) item.suppliers = [];
+if(item.mainSupplier == null) item.mainSupplier = 0;
+if(!item.note) item.note = "";
 
   const m = document.createElement("div");
   m.className = "modal";
@@ -318,7 +318,7 @@ function editItem(index){
 
     item.name = name;
     item.cat = m.querySelector("#icat").value;
-    item.iva = parseInt(m.querySelector("#iiva").value) || categoryIVA[item.cat] ?? 21;
+    item.iva = parseInt(m.querySelector("#iiva").value) || categoryIVA[item.cat] || 21;
     item.note = m.querySelector("#inote").value;
     const mainProv = parseInt(m.querySelector("#imain").value);
     item.mainSupplier = Math.max(0, Math.min(mainProv - 1, item.suppliers.length - 1));
@@ -585,10 +585,11 @@ function importData(event){
 
         // normalizar
         items.forEach(i => {
-          i.suppliers ??= [];
-          i.mainSupplier ??= 0;
-          i.note ??= "";
-          i.iva ??= categoryIVA[i.cat] ?? 21;
+        if(!i.suppliers) i.suppliers = [];
+if(i.mainSupplier == null) i.mainSupplier = 0;
+if(!i.note) i.note = "";
+if(i.iva == null) i.iva = categoryIVA[i.cat] || 21;
+
         });
 
         localStorage.providers = JSON.stringify(providers);
