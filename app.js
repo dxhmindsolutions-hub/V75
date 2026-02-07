@@ -592,11 +592,11 @@ search.addEventListener("input", render);
 
 /* ===== EXPORTAR / IMPORTAR ===== */
 function exportData(){
-const data = {
-  items,
-  cart,
-  providers
-};
+  const data = {
+    items,
+    cart,
+    providers
+  };
 
   const blob = new Blob(
     [JSON.stringify(data, null, 2)],
@@ -628,11 +628,10 @@ function importData(event){
 
         // normalizar
         items.forEach(i => {
-        if(!i.suppliers) i.suppliers = [];
-if(i.mainSupplier == null) i.mainSupplier = 0;
-if(!i.note) i.note = "";
-if(i.iva == null) i.iva = categoryIVA[i.cat] || 21;
-
+          if(!i.suppliers) i.suppliers = [];
+          if(i.mainSupplier == null) i.mainSupplier = 0;
+          if(!i.note) i.note = "";
+          if(i.iva == null) i.iva = categoryIVA[i.cat] || 21;
         });
 
         localStorage.providers = JSON.stringify(providers);
@@ -657,4 +656,45 @@ if(i.iva == null) i.iva = categoryIVA[i.cat] || 21;
 function removeProvider(itemIndex, supplierIndex){
   items[itemIndex].suppliers.splice(supplierIndex,1);
   render();
+}
+
+/* ===== RESTAURAR VERSIONES ===== */
+function showBackups(){
+  const backups = JSON.parse(localStorage.backups || "[]");
+  if(!backups.length){
+    alert("No hay copias guardadas");
+    return;
+  }
+
+  const m = document.createElement("div");
+  m.className = "modal";
+  m.style.display = "flex";
+
+  m.innerHTML = `
+    <div class="box">
+      <h3>Restaurar copia</h3>
+      ${backups.map((b,i)=>`
+        <button class="restore" data-i="${i}" style="margin-bottom:8px">
+          ${new Date(b.date).toLocaleString()}
+        </button>
+      `).join("")}
+      <div>
+        <button id="cancel">Cerrar</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(m);
+
+  m.querySelector("#cancel").onclick = ()=> m.remove();
+
+  m.querySelectorAll(".restore").forEach(btn=>{
+    btn.onclick = ()=>{
+      const b = backups[btn.dataset.i];
+      localStorage.items = JSON.stringify(b.items);
+      localStorage.cart = JSON.stringify(b.cart);
+      localStorage.providers = JSON.stringify(b.providers);
+      location.reload();
+    };
+  });
 }
