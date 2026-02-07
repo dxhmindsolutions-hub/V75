@@ -64,10 +64,10 @@ const categoryIVA = {
 let activeCat = categories[0];
 let items = JSON.parse(localStorage.items || "[]");
 items.forEach(i => {
-  i.suppliers ??= [];
-  i.mainSupplier ??= 0;
-  i.note ??= "";
-  i.iva ??= categoryIVA[i.cat] ?? 21;
+i.suppliers = i.suppliers || [];
+i.mainSupplier = i.mainSupplier || 0;
+i.note = i.note || "";
+i.iva ??= categoryIVA[i.cat] ?? 21;
 });
 
 let cart  = JSON.parse(localStorage.cart  || "[]");
